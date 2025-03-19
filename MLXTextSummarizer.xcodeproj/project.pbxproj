@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		E97757F52D8AEF1D00678A1A /* MLXLLM in Frameworks */ = {isa = PBXBuildFile; productRef = E97757F42D8AEF1D00678A1A /* MLXLLM */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		E97757E12D8AED4600678A1A /* MLXTextSummarizer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MLXTextSummarizer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E97757F52D8AEF1D00678A1A /* MLXLLM in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +70,7 @@
 			);
 			name = MLXTextSummarizer;
 			packageProductDependencies = (
+				E97757F42D8AEF1D00678A1A /* MLXLLM */,
 			);
 			productName = MLXTextSummarizer;
 			productReference = E97757E12D8AED4600678A1A /* MLXTextSummarizer.app */;
@@ -94,6 +100,9 @@
 			);
 			mainGroup = E97757D82D8AED4600678A1A;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				E97757F32D8AEF1D00678A1A /* XCRemoteSwiftPackageReference "mlx-swift-examples" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E97757E22D8AED4600678A1A /* Products */;
 			projectDirPath = "";
@@ -339,6 +348,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E97757F32D8AEF1D00678A1A /* XCRemoteSwiftPackageReference "mlx-swift-examples" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ml-explore/mlx-swift-examples";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E97757F42D8AEF1D00678A1A /* MLXLLM */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E97757F32D8AEF1D00678A1A /* XCRemoteSwiftPackageReference "mlx-swift-examples" */;
+			productName = MLXLLM;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E97757D92D8AED4600678A1A /* Project object */;
 }
