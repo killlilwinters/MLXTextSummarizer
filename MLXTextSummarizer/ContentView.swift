@@ -4,46 +4,74 @@
 //
 //  Created by Maks Winters on 19.03.2025.
 //
+// https://sarunw.com/posts/dismiss-keyboard-in-swiftui/
+//
 
 import SwiftUI
 
 struct ContentView: View {
     
     @Bindable private var viewModel = ContentViewModel()
+    @FocusState private var isFocused: Bool
+    let isModelLoaded = ModelProvider.shared.isContainerLoaded
     
     var body: some View {
-        
-        VStack {
-            List {
-                Section("Previous responses") {
-                    ForEach(viewModel.responses, id: \.self) { response in
-                        Text(response)
+        NavigationStack {
+            Spacer()
+            VStack(spacing: 20) {
+                Text(viewModel.responseTitle)
+                    .font(.title)
+                Text(viewModel.responseBody)
+                    .font(.body)
+                HStack {
+                    ForEach(viewModel.responseTags, id: \.self) { tag in
+                        Text(tag)
+                            .padding()
+                            .background {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(.blue)
+                            }
                     }
                 }
-                Section("Latest response") {
-                    Text(viewModel.summary)
+                Spacer()
+                HStack {
+                    let rectangle = RoundedRectangle(cornerRadius: 20)
+                    TextEditor(text: $viewModel.inputText)
+                        .focused($isFocused)
+                        .frame(height: 100)
+                        .clipShape(rectangle)
+                        .overlay {
+                            rectangle
+                                .stroke(lineWidth: 2)
+                        }
+                    Button("Summarize") {
+                        Task {
+                            await viewModel.startSummarize()
+                        }
+                    }
+                    .buttonStyle(.bordered)
+                    .buttonBorderShape(.capsule)
+                }
+                .padding()
+                .task {
+                    await viewModel.loadModel()
                 }
             }
-            HStack {
-                let rectangle = RoundedRectangle(cornerRadius: 20)
-                TextEditor(text: $viewModel.inputText)
-                    .frame(height: 100)
-                    .clipShape(rectangle)
-                    .overlay {
-                        rectangle
-                            .stroke(lineWidth: 2)
-                    }
-                Button("Summarize") {
-                    Task {
-                        await viewModel.summarize()
+            .toolbar {
+                #if os(iOS)
+                ToolbarItem {
+                    Button("Dismiss keyboard") {
+                        isFocused = false
                     }
                 }
-                .buttonStyle(.bordered)
-                .buttonBorderShape(.capsule)
+                #endif
             }
-            .padding()
-            .task {
-                await viewModel.loadModel()
+        }
+        .overlay {
+            if !isModelLoaded {
+                ProgressView()
+                    .progressViewStyle(.circular)
+                
             }
         }
     }

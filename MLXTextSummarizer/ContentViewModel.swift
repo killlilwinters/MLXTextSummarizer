@@ -12,33 +12,84 @@ import Foundation
 class ContentViewModel {
     private let modelProvider = ModelProvider.shared
     
-    var responses = [String]()
+    private let hapticEngine: HapticProvider?
+    
+    var responseTitle = String()
+    var responseBody = String()
+    var responseTags = [String]()
+    
     var inputText = String()
-    var summary = "No summary yet..."
     
     var cancellable = Set<AnyCancellable>()
     
-    private func summarizationCompleted() {
-        responses.append(summary)
+    init() {
+        guard let hapticEngine = try? HapticProvider() else { self.hapticEngine = nil; return }
+        self.hapticEngine = hapticEngine
     }
+    
     
     func loadModel() async {
         try? await modelProvider.prerapeModel()
     }
     
-    func summarize() async {
-        try? await modelProvider.generateSummary(inputText) { [weak self] publisher in
+    func startSummarize() async {
+        
+        await summarize(preprompt: .summarizeTitle)
+        await summarize(preprompt: .summarizeBody)
+        
+        await summarizeInTags()
+        
+    }
+    
+    private func summarize(preprompt: ModelPrompt) async {
+        try? await modelProvider.generateSummary(inputText, preprompt: preprompt) { [weak self] publisher in
             guard let self else { return }
             
             publisher
                 .receive(on: DispatchQueue.main)
                 .sink { completion in
-                    self.summarizationCompleted()
+                    switch completion {
+                    case .finished:
+                        self.hapticEngine?.performSuccess()
+                    }
                 } receiveValue: { value in
-                    self.summary = value
+                    switch preprompt {
+                    case .summarizeTitle:
+                        self.responseTitle = value
+                        try? self.hapticEngine?.performLightTap()
+                    case .summarizeBody:
+                        self.responseBody = value
+                    default:
+                        break
+                    }
                 }
                 .store(in: &cancellable)
         }
     }
+    
+    private func summarizeInTags() async {
+        responseTags.removeAll()
+        try? await modelProvider.generateSummary(responseBody, preprompt: .summarizeInTags) { [weak self] publisher in
+            guard let self else { return }
+            
+            var finalValue: String = ""
+            
+            publisher
+                .receive(on: DispatchQueue.main)
+                .sink { completion in
+                    print(finalValue)
+                    let decoded = try? JSONDecoder().decode([String].self, from: Data(finalValue.utf8))
+                    
+                    if let tags = decoded, !tags.isEmpty {
+                        self.responseTags = tags
+                    } else {
+                        Task { await self.summarizeInTags() }
+                    }
+                } receiveValue: { value in
+                    finalValue = value
+                }
+                .store(in: &cancellable)
+            
+        }
+    }
 }
-
