@@ -49,6 +49,7 @@ struct ContentView: View {
                             await viewModel.startSummarize()
                         }
                     }
+                    .disabled(!isModelLoaded)
                     .buttonStyle(.bordered)
                     .buttonBorderShape(.capsule)
                 }
