@@ -9,6 +9,7 @@
 import UIKit
 
 typealias HapticFeedbackGenerator = UINotificationFeedbackGenerator
+typealias HapticFeedbackMockCases = UINotificationFeedbackGenerator.FeedbackType
 
 #else
 

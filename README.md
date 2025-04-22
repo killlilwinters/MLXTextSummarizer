@@ -1,6 +1,6 @@
 # MLXTextSummarizer
 
-<img width="1012" alt="Screenshot" src="https://github.com/user-attachments/assets/023ebd8f-c399-4820-b77c-b0b457f7897c" />
+![MLXTextSummarizerDemo](https://github.com/user-attachments/assets/6f5f2d33-b18b-458a-9543-b22b4ed0bb11)
 
 MLXTextSummarizer is an iOS application built with SwiftUI that leverages machine learning to create concise summaries of text inputs. The app produces three outputs from any provided text:
 

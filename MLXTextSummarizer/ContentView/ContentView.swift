@@ -15,27 +15,28 @@ struct ContentView: View {
     @FocusState private var isFocused: Bool
     let isModelLoaded = ModelProvider.shared.isContainerLoaded
     
+    let rectangle = RoundedRectangle(cornerRadius: 20)
+    
     var body: some View {
         NavigationStack {
             Spacer()
             VStack(spacing: 20) {
                 Text(viewModel.responseTitle)
                     .font(.title)
-                Text(viewModel.responseBody)
+                HighlightedText(text: viewModel.responseBody, highlightedText: [viewModel.responseTags: Color.accentColor.gradient])
                     .font(.body)
+                    .padding()
+//                Text(viewModel.responseBody)
+//                    .font(.body)
+//                    .padding()
                 HStack {
                     ForEach(viewModel.responseTags, id: \.self) { tag in
-                        Text(tag)
-                            .padding()
-                            .background {
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(.blue)
-                            }
+                        TagView(title: tag)
+                            .transition(.blurReplace)
                     }
                 }
                 Spacer()
                 HStack {
-                    let rectangle = RoundedRectangle(cornerRadius: 20)
                     TextEditor(text: $viewModel.inputText)
                         .focused($isFocused)
                         .frame(height: 100)
@@ -44,10 +45,9 @@ struct ContentView: View {
                             rectangle
                                 .stroke(lineWidth: 2)
                         }
+                        .onSubmit { summarize() }
                     Button("Summarize") {
-                        Task {
-                            await viewModel.startSummarize()
-                        }
+                        summarize()
                     }
                     .disabled(!isModelLoaded)
                     .buttonStyle(.bordered)
@@ -59,23 +59,44 @@ struct ContentView: View {
                 }
             }
             .toolbar {
-                #if os(iOS)
+#if os(iOS)
                 ToolbarItem {
                     Button("Dismiss keyboard") {
                         isFocused = false
                     }
                 }
-                #endif
+#endif
             }
         }
         .overlay {
             if !isModelLoaded {
-                ProgressView()
-                    .progressViewStyle(.circular)
-                
+                LoadingView
             }
         }
     }
+    
+    @ViewBuilder
+    var LoadingView: some View {
+        ZStack {
+            Rectangle()
+                .ignoresSafeArea()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .foregroundStyle(.ultraThinMaterial)
+            VStack(spacing: 20) {
+                ProgressView()
+                    .progressViewStyle(.circular)
+                Text("Loading model\nplease, wait...")
+                    .multilineTextAlignment(.center)
+            }
+        }
+    }
+    
+    func summarize() {
+        Task {
+            await viewModel.startSummarize()
+        }
+    }
+    
 }
 
 #Preview {

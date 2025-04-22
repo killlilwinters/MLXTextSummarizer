@@ -7,6 +7,7 @@
 
 import Combine
 import Foundation
+import SwiftUI
 
 @Observable
 class ContentViewModel {
@@ -14,9 +15,9 @@ class ContentViewModel {
     
     private let hapticEngine: HapticProvider?
     
-    var responseTitle = String()
-    var responseBody = String()
-    var responseTags = [String]()
+    var responseTitle: String        = .init()
+    var responseBody:  String        = .init()
+    var responseTags:  Array<String> = .init()
     
     var inputText = String()
     
@@ -33,6 +34,9 @@ class ContentViewModel {
     }
     
     func startSummarize() async {
+        responseTitle = .init()
+        responseBody  = .init()
+        responseTags  = .init()
         
         await summarize(preprompt: .summarizeTitle)
         await summarize(preprompt: .summarizeBody)
@@ -50,7 +54,7 @@ class ContentViewModel {
                 .sink { completion in
                     switch completion {
                     case .finished:
-                        self.hapticEngine?.performSuccess()
+                        self.hapticEngine?.perform(.success)
                     }
                 } receiveValue: { value in
                     switch preprompt {
@@ -81,7 +85,9 @@ class ContentViewModel {
                     let decoded = try? JSONDecoder().decode([String].self, from: Data(finalValue.utf8))
                     
                     if let tags = decoded, !tags.isEmpty {
-                        self.responseTags = tags
+                        withAnimation {
+                            self.responseTags = tags
+                        }
                     } else {
                         Task { await self.summarizeInTags() }
                     }
