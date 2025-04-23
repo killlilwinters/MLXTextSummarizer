@@ -16,7 +16,7 @@ struct HighlightedText: View {
         process()
     }
     
-    func process() -> Text {
+    private func process() -> Text {
         guard !highlightedText.isEmpty && !text.isEmpty else { return Text(text) }
         
         var result = Text("")
